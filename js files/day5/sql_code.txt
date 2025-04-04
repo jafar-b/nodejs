@@ -1,0 +1,86 @@
+create database day_5_nodejs;
+use day_5_nodejs; 
+
+create table authors (
+    id int primary key auto_increment,
+    name varchar(100) not null,
+    country varchar(100),
+    birth_year int
+);
+
+create table genres (
+    id int primary key auto_increment,
+    name varchar(100) not null,
+    description varchar(255)
+);
+
+create table books (
+    id int primary key auto_increment,
+    title varchar(150) not null,
+    author_id int,
+    genre_id int,
+    published_year int,
+    price decimal(10,2),
+    foreign key (author_id) references authors(id),
+    foreign key (genre_id) references genres(id)
+);
+
+create table users (
+    id int primary key auto_increment,
+    name varchar(100) not null,
+    email varchar(100) not null unique,
+    age int,
+    created_at datetime default current_timestamp
+);
+
+
+
+
+ALTER TABLE books DROP FOREIGN KEY books_ibfk_1;
+ALTER TABLE books DROP FOREIGN KEY books_ibfk_2;
+
+ALTER TABLE books
+ADD CONSTRAINT fk_books_author
+FOREIGN KEY (author_id) REFERENCES authors(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+ALTER TABLE books
+ADD CONSTRAINT fk_books_genre
+FOREIGN KEY (genre_id) REFERENCES genres(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+
+
+INSERT INTO authors (name, country, birth_year) VALUES
+('chetan bhagat', 'india', 1974),
+('amish tripathi', 'india', 1974),
+('arundhati roy', 'india', 1961),
+('sudha murthy', 'india', 1950),
+('rk narayan', 'india', 1906);
+
+
+INSERT INTO genres (name, description) VALUES
+('mythology', 'based on indian epics and deities'),
+('romance', 'indian love and relationships'),
+('fiction', 'indian contemporary fiction'),
+('biography', 'life stories of indian personalities'),
+('children', 'stories for indian kids');
+
+
+INSERT INTO books (title, author_id, genre_id, published_year, price) VALUES
+('the immortals of meluha', 2, 1, 2010, 250.00),
+('half girlfriend', 1, 2, 2014, 200.00),
+('the god of small things', 3, 3, 1997, 350.00),
+('wise and otherwise', 4, 4, 2002, 180.00),
+('swami and friends', 5, 5, 1935, 160.00);
+
+
+INSERT INTO users (name, email, age, created_at) VALUES
+('rahul verma', 'rahul@example.com', 25, '2023-11-10'),
+('ananya singh', 'ananya@example.com', 22, '2024-01-15'),
+('vishal kumar', 'vishal@example.com', 28, '2023-12-05'),
+('priya mehra', 'priya@example.com', 24, '2024-03-01'),
+('arjun nair', 'arjun@example.com', 26, '2023-10-20');
+
