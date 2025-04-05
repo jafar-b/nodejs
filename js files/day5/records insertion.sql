@@ -1,41 +1,5 @@
-create database day_5_nodejs;
-use day_5_nodejs; 
-
-create table authors (
-    id int primary key auto_increment,
-    name varchar(100) not null,
-    country varchar(100),
-    birth_year int
-);
-
-create table genres (
-    id int primary key auto_increment,
-    name varchar(100) not null,
-    description varchar(255)
-);
-
-create table books (
-    id int primary key auto_increment,
-    title varchar(150) not null,
-    author_id int,
-    genre_id int,
-    published_year int,
-    price decimal(10,2),
-    foreign key (author_id) references authors(id),
-    foreign key (genre_id) references genres(id)
-);
-
-create table users (
-    id int primary key auto_increment,
-    name varchar(100) not null,
-    email varchar(100) not null unique,
-    age int,
-    created_at datetime default current_timestamp
-);
-
-
-
-
+use day_5_nodejs;
+select * from genres;
 ALTER TABLE books DROP FOREIGN KEY books_ibfk_1;
 ALTER TABLE books DROP FOREIGN KEY books_ibfk_2;
 
@@ -83,4 +47,17 @@ INSERT INTO users (name, email, age, created_at) VALUES
 ('vishal kumar', 'vishal@example.com', 28, '2023-12-05'),
 ('priya mehra', 'priya@example.com', 24, '2024-03-01'),
 ('arjun nair', 'arjun@example.com', 26, '2023-10-20');
+
+  alter table genres rename column id to genre_id;
+  alter table authors rename column id to author_id;
+  alter table books rename column id to book_id;
+alter table users rename column id to user_id;
+
+select * from users;
+
+
+-- list all books with author and genre names
+select book_id,title,published_year,price,b.author_id,a.name,g.genre_id,g.name from books b 
+join authors a on b.author_id=a.author_id
+join genres g on b.genre_id=g.genre_id;
 

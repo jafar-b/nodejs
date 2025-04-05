@@ -16,7 +16,7 @@ app.use("/books",bookRoutes);
 app.use("/authors",authorRoutes);
 app.use("/genres",genreRoutes);
 
-app.use(cors({
+app.use(cors({ 
   origin: 'http://localhost:3000', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
