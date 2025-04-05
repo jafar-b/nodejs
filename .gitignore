@@ -2,8 +2,3 @@
 /.env
 package-lock.json
 
-
-
-git remote add origin https://github.com/jafar-b/nodejs.git
-git branch -M main
-git push -u origin main
