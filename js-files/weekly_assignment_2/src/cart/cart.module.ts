@@ -8,5 +8,6 @@ import { PaymentService } from '../payment/payment.service';
 
   controllers: [CartController,],
   providers: [CartService,PaymentService],
+  exports:[CartService]
 })
 export class CartModule {}
