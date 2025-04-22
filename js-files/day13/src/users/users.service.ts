@@ -18,10 +18,10 @@ export class UsersService {
   ) {
     return this.userRepository
     .createQueryBuilder('user')
-    .leftJoinAndSelect('user.profile', 'profile') // Ensure 'user.profile' matches the relation in the User entity
-    .where('user.name LIKE :name', { name: `%${nameFilter}%` }) // Filtering
+    .leftJoinAndSelect('user.profile', 'profile') 
+    .where('user.name LIKE :name', { name: `%${nameFilter}%` }) 
     .orderBy('user.name', 'ASC') // Single sorting
-    .addOrderBy('profile.type', 'DESC') // Relational sorting 
+    .addOrderBy('profile.type', 'DESC') // Relational sorting
     .skip((page - 1) * limit) // Pagination
     .take(limit)
     .getMany();

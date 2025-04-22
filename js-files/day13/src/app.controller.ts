@@ -12,7 +12,7 @@ export class AppController {
 
   @Post('login')
   login(@Body('userId') userId: number) {
-    return this.appService.login(userId); // simple login with userId
+    return this.appService.login(userId);
   }
 
   @Post('refresh')

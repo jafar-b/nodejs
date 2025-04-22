@@ -17,7 +17,7 @@ import { User } from './users/entities/user.entity';
       password: 'root',
       database: 'day13', 
       entities: [User, Profile],
-      synchronize: true, // auto-create tables (turn off in production)
+      synchronize: true,
     }),
     TypeOrmModule.forFeature([User, Profile]),
     JwtModule.register({ secret: 'supersecret' })
