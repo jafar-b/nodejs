@@ -11,7 +11,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'your_refresh_secret_key', // In production, use environment variables
+      secretOrKey: 'your_refresh_secret_key',
       passReqToCallback: true,
     });
   }

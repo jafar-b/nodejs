@@ -57,7 +57,6 @@ export class InvoicesController {
     
     const createInvoiceDto = plainToInstance(CreateInvoiceDto, body);
     
-    // Process attachments - files are now saved to disk with proper filenames
     const attachments = files && files.length > 0 
       ? files.map(file => this.uploadsService.getFileUrl(file.filename)) 
       : [];
