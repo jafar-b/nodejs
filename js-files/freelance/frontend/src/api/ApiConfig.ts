@@ -67,7 +67,7 @@ interface InvoiceData {
 
 // Create axios instance with base URL
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ const api: AxiosInstance = axios.create({
 // Request interceptor for adding the auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_STORAGE_KEY || 'access_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -97,7 +97,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
+        const refreshToken = localStorage.getItem(import.meta.env.VITE_AUTH_REFRESH_TOKEN_STORAGE_KEY || 'refresh_token');
         if (!refreshToken) {
           // No refresh token available, redirect to login
           window.location.href = '/login';
@@ -105,15 +105,15 @@ api.interceptors.response.use(
         }
         
         // Call refresh token endpoint
-        const response = await axios.post('http://localhost:3000/auth/refresh', {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/auth/refresh`, {
           refreshToken
         });
         
         const { accessToken, refreshToken: newRefreshToken } = response.data;
         
         // Update tokens in localStorage
-        localStorage.setItem('access_token', accessToken);
-        localStorage.setItem('refresh_token', newRefreshToken);
+        localStorage.setItem(import.meta.env.VITE_AUTH_TOKEN_STORAGE_KEY || 'access_token', accessToken);
+        localStorage.setItem(import.meta.env.VITE_AUTH_REFRESH_TOKEN_STORAGE_KEY || 'refresh_token', newRefreshToken);
         
         // Update the original request with the new token
         originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
@@ -122,8 +122,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // If refresh token is invalid, clear auth and redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_STORAGE_KEY || 'access_token');
+        localStorage.removeItem(import.meta.env.VITE_AUTH_REFRESH_TOKEN_STORAGE_KEY || 'refresh_token');
         localStorage.removeItem('user');
         window.location.href = '/login';
         return Promise.reject(refreshError);
