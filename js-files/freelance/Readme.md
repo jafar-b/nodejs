@@ -106,19 +106,50 @@ frontend/
 
 ### Backend 
 ```
+# Server Configuration
 PORT=3000
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=your_password
-DATABASE_NAME=skillsync
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRATION=24h
+NODE_ENV=development
+
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=your_database_password
+DB_DATABASE=skillsync
+
+# JWT Authentication
+JWT_ACCESS_SECRET=your_access_secret_key
+JWT_REFRESH_SECRET=your_refresh_secret_key
+JWT_ACCESS_EXPIRATION=5h
+JWT_REFRESH_EXPIRATION=7d
+
+# File Upload
+UPLOAD_DIR=uploads
+MAX_FILE_SIZE=5000000 # 5MB
+
+# API Configuration
+API_PREFIX=/api
+ENABLE_CORS=true
+
 ```
 
 ### Frontend
 ```
+# API Configuration
 VITE_API_BASE_URL=http://localhost:3000
+
+# Authentication Settings
+VITE_AUTH_TOKEN_STORAGE_KEY=access_token
+VITE_AUTH_REFRESH_TOKEN_STORAGE_KEY=refresh_token
+
+# Feature Flags
+VITE_ENABLE_CHAT_FEATURE=true
+VITE_ENABLE_NOTIFICATIONS=true
+
+# Application Settings
+VITE_APP_NAME=SkillSync
+VITE_DEFAULT_ITEMS_PER_PAGE=10
+
 ```
 
 ## Installation and Setup
