@@ -1,4 +1,4 @@
-entities ko modules me chipka de for erg: contract,user_skills,project_category,review,etc
+ for erg: contract,user_skills,project_category,review,etc
 controller routes for client,freelancer
 ----bugs- client service 
 
