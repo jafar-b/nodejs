@@ -37,7 +37,7 @@ import {
 import { useState } from 'react';
 import { FiSearch, FiFilter, FiChevronRight } from 'react-icons/fi';
 import { useQuery } from '@tanstack/react-query';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import ProjectCard from '@components/projects/ProjectCard';
 import { ProjectStatus } from '@/AllEnums';
 

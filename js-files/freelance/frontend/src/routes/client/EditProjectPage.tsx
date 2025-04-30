@@ -5,7 +5,6 @@ import {
   Card,
   CardBody,
   Stack,
-  Button,
   useToast,
   Breadcrumb,
   BreadcrumbItem,
@@ -19,9 +18,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FiChevronRight } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import ProjectForm from '@components/projects/ProjectForm';
-import useAuth from '@/hooks/useAuth';
 import { PaymentType } from '@/AllEnums';
 
 interface ApiResponse {
@@ -48,7 +46,6 @@ function EditProjectPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -108,7 +105,7 @@ function EditProjectPage() {
       console.log('Sending project data:', formattedData);
       return apiService.projects.update(id, formattedData);
     },
-    onSuccess: (response) => {
+    onSuccess: () => {
       toast({
         title: 'Project updated successfully!',
         status: 'success',

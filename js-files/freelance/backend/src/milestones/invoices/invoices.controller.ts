@@ -11,7 +11,7 @@ import { CreateInvoiceDto, UpdateInvoiceDto } from 'src/dtos/invoice.dto';
 import { plainToInstance } from 'class-transformer';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-import { extname, join } from 'path';
+import { extname} from 'path';
 import { existsSync, mkdirSync } from 'fs';
 
 @Controller('invoices')

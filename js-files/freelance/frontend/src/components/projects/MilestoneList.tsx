@@ -28,7 +28,7 @@ import { FiCalendar, FiDollarSign, FiCheck, FiFileText } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import { format } from 'date-fns';
 import { MilestoneStatus } from '@/AllEnums';
 import useAuth from '@/hooks/useAuth';

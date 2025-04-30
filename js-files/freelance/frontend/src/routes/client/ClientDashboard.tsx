@@ -22,9 +22,9 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import { FiPlus, FiTrendingUp, FiCheckCircle, FiClock, FiDollarSign, FiBriefcase, FiStar } from 'react-icons/fi';
+import { FiPlus, FiCheckCircle, FiClock, FiDollarSign, FiBriefcase, FiStar } from 'react-icons/fi';
 import { useQuery } from '@tanstack/react-query';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import ProjectCard from '@components/projects/ProjectCard';
 import { ProjectStatus } from '@/AllEnums';
 import { useEffect } from 'react';

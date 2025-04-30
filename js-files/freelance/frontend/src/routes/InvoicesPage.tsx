@@ -43,7 +43,7 @@ import { FiPlus, FiEdit, FiTrash2, FiFileText } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { useForm, Controller } from 'react-hook-form';
 import useAuth from '@/hooks/useAuth';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import { InvoiceStatus, userRole } from '@/AllEnums';
 
 interface Project {

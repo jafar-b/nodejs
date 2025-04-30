@@ -18,7 +18,7 @@ import { FiPaperclip, FiSend } from 'react-icons/fi';
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useAuth from '@/hooks/useAuth';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import { userRole } from '@/AllEnums';
 
 interface MessageFile {

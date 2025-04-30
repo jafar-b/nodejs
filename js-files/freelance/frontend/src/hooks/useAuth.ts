@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { useState, useEffect } from 'react';
-import apiService from '@/api';
+import { useState } from 'react';
+import apiService from '@/api/ApiConfig';
 import { userRole } from '@/AllEnums';
 
 export interface User {

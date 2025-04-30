@@ -16,7 +16,6 @@ import {
   Flex,
   Icon,
   Badge,
-  Progress,
   List,
   ListItem,
   useColorModeValue,
@@ -32,7 +31,7 @@ import {
   FiStar
 } from 'react-icons/fi';
 import { useQuery } from '@tanstack/react-query';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import ProjectCard from '@components/projects/ProjectCard';
 import { BidStatus, ProjectStatus } from '@/AllEnums';
 

@@ -30,7 +30,7 @@ import {
   FiPackage,
 } from 'react-icons/fi';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import useAuth from '@/hooks/useAuth';
 
 // Type definitions

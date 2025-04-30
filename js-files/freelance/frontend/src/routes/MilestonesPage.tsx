@@ -36,11 +36,11 @@ import {
   IconButton,
   Progress,
 } from '@chakra-ui/react';
-import { FiCalendar, FiDollarSign, FiCheck, FiEdit, FiPlus, FiFileText } from 'react-icons/fi';
+import {  FiCheck, FiEdit, FiPlus, FiFileText } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
   
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import { MilestoneStatus, userRole, ProjectStatus } from '@/AllEnums';
 import useAuth from '@/hooks/useAuth';
 

@@ -26,7 +26,7 @@ import {
 import { FiSend, FiPaperclip, FiMessageCircle, FiClock } from 'react-icons/fi';
 import { format } from 'date-fns';
 import useAuth from '@/hooks/useAuth';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 
 interface Message {
   id: string;

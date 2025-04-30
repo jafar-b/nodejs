@@ -37,7 +37,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import useAuth from '@/hooks/useAuth';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import { format } from 'date-fns';
 import { BidStatus, userRole } from '@/AllEnums';
 

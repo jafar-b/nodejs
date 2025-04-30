@@ -10,11 +10,9 @@ import {
   Stack,
   VStack,
   HStack,
-  Text,
   Avatar,
   AvatarBadge,
   IconButton,
-  Divider,
   Textarea,
   useToast,
   FormErrorMessage,
@@ -23,8 +21,7 @@ import { FiEdit, FiCamera } from 'react-icons/fi';
 import { useState, useRef, ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import useAuth from '@/hooks/useAuth';
-import apiService from '@/api';
-import { userRole } from '@/AllEnums';
+import apiService from '@/api/ApiConfig';
 
 
 interface ProfileFormData {
@@ -75,7 +72,7 @@ function ProfilePage() {
 
     setIsLoading(true);
     try {
-      const response = await apiService.users.uploadAvatar(formData);
+      
       // Refresh user data to get the new avatar URL
       const userResponse = await apiService.users.getProfile();
       // Update user in context

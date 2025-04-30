@@ -118,6 +118,7 @@ export class MessagesService {
 
     // Check if user is part of the project
     if (project.clientId !== userId && project.assignedFreelancerId !== userId) {
+      console.warn(`Forbidden: user ${userId} tried to access messages for project ${projectId}. Project client: ${project.clientId}, freelancer: ${project.assignedFreelancerId}`);
       throw new ForbiddenException('You are not authorized to view these messages');
     }
 
@@ -145,6 +146,7 @@ export class MessagesService {
 
     // Check if user is part of the project
     if (project.clientId !== userId && project.assignedFreelancerId !== userId) {
+      console.warn(`Forbidden: user ${userId} tried to send a message to project ${projectId}. Project client: ${project.clientId}, freelancer: ${project.assignedFreelancerId}`);
       throw new ForbiddenException('You are not authorized to send messages in this project');
     }
 

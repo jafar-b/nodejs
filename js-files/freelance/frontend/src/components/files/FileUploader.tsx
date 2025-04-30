@@ -14,7 +14,7 @@ import {
 import { FiUpload, FiFile, FiX } from 'react-icons/fi';
 import { useState, useRef, ChangeEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 
 interface FileUploaderProps {
   projectId: string | number;

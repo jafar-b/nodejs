@@ -45,7 +45,7 @@ import {
 import { FiClock, FiDollarSign, FiFile } from 'react-icons/fi';
 import { format } from 'date-fns';
 import useAuth from '@/hooks/useAuth';
-import apiService from '@/api';
+import apiService from '@/api/ApiConfig';
 import { userRole } from '@/AllEnums';
 import BidList from '@components/projects/BidList';
 import MilestoneList from '@components/projects/MilestoneList';
@@ -88,7 +88,7 @@ function ProjectDetailPage() {
   const [project, setProject] = useState<ProjectDetail | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen,  onClose } = useDisclosure();
   const [milestoneData, setMilestoneData] = useState({
     title: '',
     description: '',
@@ -153,13 +153,8 @@ function ProjectDetailPage() {
   }
 
   const isClient = user?.role === userRole.CLIENT;
-  const isFreelancer = user?.role === userRole.FREELANCER;
   const isProjectOwner = isClient && user?.id && project.client?.id && user.id === project.client.id;
-  const isAssignedFreelancer = 
-    isFreelancer && 
-    user?.id && 
-    project.freelancer?.id && 
-    user.id === project.freelancer.id;
+
 
   const handleMilestoneSubmit = async () => {
     try {

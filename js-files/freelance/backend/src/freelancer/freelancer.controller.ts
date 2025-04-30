@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
 import { FreelancerService } from './freelancer.service';
-import { CreateFreelancerDto } from './dto/create-freelancer.dto';
-import { UpdateFreelancerDto } from './dto/update-freelancer.dto';
+
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateUserDto, UpdateUserDto } from 'src/dtos/user.dto';
