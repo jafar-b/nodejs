@@ -3,7 +3,7 @@ import { ClientService } from './client.service';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CreateUserDto } from 'src/dtos/user.dto';
+import { CreateUserDto, UpdateUserDto } from 'src/dtos/user.dto';
 
 @Controller('client')
 export class ClientController {
@@ -21,6 +21,12 @@ export class ClientController {
     return this.clientService.findOne(req.user.userId);
   }
 
+  @Get('dashboard')
+  @Roles('client')
+  getDashboard(@Request() req) {
+    return this.clientService.getDashboardStats(req.user.userId);
+  }
+
   @Get()
   @Roles('client')
   findAll() {
@@ -35,8 +41,8 @@ export class ClientController {
 
   @Patch(':id')
   @Roles('client')
-  update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
-    return this.clientService.update(id, updateClientDto);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.clientService.update(id, updateUserDto);
   }
 
   @Delete(':id')

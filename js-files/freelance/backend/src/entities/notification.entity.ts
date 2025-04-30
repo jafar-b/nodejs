@@ -12,7 +12,7 @@ export enum NotificationType {
 
 @Entity('notifications')
 export class Notification {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'user_id' })

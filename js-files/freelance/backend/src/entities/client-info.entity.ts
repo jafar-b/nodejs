@@ -3,7 +3,7 @@ import { User } from './user.entity';
 
 @Entity('client_info')
 export class ClientInfo {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()

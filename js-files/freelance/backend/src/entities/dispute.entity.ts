@@ -11,7 +11,7 @@ export enum DisputeStatus {
 
 @Entity('disputes')
 export class Dispute {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'project_id' })

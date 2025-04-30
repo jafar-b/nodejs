@@ -4,6 +4,7 @@ import { Milestone } from 'src/entities/milestone.entity';
 import { CreateMilestoneDto, UpdateMilestoneDto } from 'src/dtos/milestone.dto';
 import { MilestoneStatus } from 'src/entities/milestone.entity';
 import { Repository } from 'typeorm';
+import { UserRole } from 'src/enums/allEnums';
 
 @Injectable()
 export class MilestonesService {
@@ -23,19 +24,94 @@ async create(createMilestoneDto: CreateMilestoneDto, clientId: string) {
   }
 
   async findAll() {
-    return await this.milestoneRepo.find();
+    return await this.milestoneRepo.find({
+      relations: ['project'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        amount: true,
+        dueDate: true,
+        status: true,
+        projectId: true,
+        clientId: true,
+        createdAt: true,
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        }
+      }
+    });
   }
 
   async findAllByProject(projectId: string) {
-    return await this.milestoneRepo.find({ where: { projectId: +projectId } });
+    return await this.milestoneRepo.find({
+      where: { projectId: +projectId },
+      relations: ['project'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        amount: true,
+        dueDate: true,
+        status: true,
+        projectId: true,
+        clientId: true,
+        createdAt: true,
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        }
+      }
+    });
   }
 
   async findAllByClient(clientId: string) {
-    return await this.milestoneRepo.find({ where: { clientId: +clientId } });
+    return await this.milestoneRepo.find({
+      where: { clientId: +clientId },
+      relations: ['project'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        amount: true,
+        dueDate: true,
+        status: true,
+        projectId: true,
+        clientId: true,
+        createdAt: true,
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        }
+      }
+    });
   }
 
   async findOne(id: string) {
-    const milestone = await this.milestoneRepo.findOne({ where: { id: +id } });
+    const milestone = await this.milestoneRepo.findOne({
+      where: { id: +id },
+      relations: ['project'],
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        amount: true,
+        dueDate: true,
+        status: true,
+        projectId: true,
+        clientId: true,
+        createdAt: true,
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        }
+      }
+    });
     if (!milestone) {
       throw new NotFoundException(`Milestone with ID ${id} not found`);
     }
@@ -45,14 +121,14 @@ async create(createMilestoneDto: CreateMilestoneDto, clientId: string) {
   async update(id: string, updateMilestoneDto: UpdateMilestoneDto, userId: string, role: string) {
     const milestone = await this.findOne(id);
 
-    if (role === 'client' && milestone.clientId !== +userId) {
+    if (role === UserRole.CLIENT && milestone.clientId !== +userId) {
       throw new ForbiddenException('You do not have permission to update this milestone');
     }
 
-    if (role === 'freelancer') {
+    if (role === UserRole.FREELANCER) {
       if (
         Object.keys(updateMilestoneDto).length > 1 ||
-        (updateMilestoneDto.status && updateMilestoneDto.status !== 'COMPLETED')
+        (updateMilestoneDto.status && updateMilestoneDto.status !== MilestoneStatus.COMPLETED)
       ) {
         throw new ForbiddenException('Freelancers can only mark milestones as completed');
       }
@@ -65,11 +141,11 @@ async create(createMilestoneDto: CreateMilestoneDto, clientId: string) {
   async remove(id: string, userId: string, role: string) {
     const milestone = await this.findOne(id);
 
-    if (role === 'client' && milestone.clientId !== +userId) {
+    if (role === UserRole.CLIENT && milestone.clientId !== +userId) {
       throw new ForbiddenException('You do not have permission to delete this milestone');
     }
 
-    if (role === 'freelancer') {
+    if (role === UserRole.FREELANCER) {
       throw new ForbiddenException('Freelancers cannot delete milestones');
     }
 
@@ -88,7 +164,7 @@ async create(createMilestoneDto: CreateMilestoneDto, clientId: string) {
       throw new ForbiddenException('You do not have permission to release payment for this milestone');
     }
 
-    if (milestone.status !== 'COMPLETED') {
+    if (milestone.status !== MilestoneStatus.COMPLETED) {
       throw new ForbiddenException('Can only release payment for completed milestones');
     }
 

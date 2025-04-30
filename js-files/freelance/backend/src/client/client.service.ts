@@ -1,11 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-
-import * as bcrypt from 'bcrypt';
-import { User } from 'src/entities/user.entity';
-import { UserRole } from 'src/enums/allEnums';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from 'src/entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from 'src/dtos/user.dto';
+import { UserRole } from 'src/enums/allEnums';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ClientService {
@@ -13,15 +12,14 @@ export class ClientService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
-  async create(userDto: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(userDto.passwordHash, 10);
+  async create(createUserDto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(createUserDto.passwordHash, 10);
     const newUser = this.userRepo.create({
-      ...userDto,
+      ...createUserDto,
       passwordHash: hashedPassword,
-      refreshToken: undefined,
+      refreshToken: null,
       role: UserRole.CLIENT,
     });
-
     const savedUser = await this.userRepo.save(newUser);
     return this.sanitizeUser(savedUser);
   }
@@ -36,6 +34,7 @@ export class ClientService {
   async findOne(id: string) {
     const user = await this.userRepo.findOne({
       where: { id: +id, role: UserRole.CLIENT },
+      relations: ['clientInfo', 'projects'],
     });
 
     if (!user) {
@@ -43,41 +42,18 @@ export class ClientService {
     }
     return this.sanitizeUser(user);
   }
-  async findByEmail(email: string, includeSensitiveFields = false) {
-    const selectFields = includeSensitiveFields
-      ? {
-          id: true,
-          email: true,
-          passwordHash: true,
-          firstName: true,
-          lastName: true,
-          role: true,
-          phoneNumber: true,
-          createdAt: true,
-          updatedAt: true,
-          isVerified: true,
-          verificationToken: true,
-          refreshToken: true,
-        }
-      : {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          role: true,
-          phoneNumber: true,
-          createdAt: true,
-          updatedAt: true,
-          isVerified: true,
-          verificationToken: true,
-        };
 
+  async findByEmail(email: string, includeSensitiveFields = false) {
     const user = await this.userRepo.findOne({
       where: { email, role: UserRole.CLIENT },
-      
     });
 
-    return user || null;
+    if (!user) {
+      return null;
+    }
+
+    // return includeSensitiveFields ? user : this.sanitizeUser(user);
+    return user;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -128,7 +104,80 @@ export class ClientService {
     return { success: true };
   }
 
-  public sanitizeUser(user: User) {
+  async getDashboardStats(userId: string) {
+    const [activeProjects, completedProjects, pendingBids, totalSpent] = await Promise.all([
+      // Active projects count
+      this.userRepo
+        .createQueryBuilder('user')
+        .leftJoin('user.clientProjects', 'project')
+        .where('user.id = :userId', { userId })
+        .andWhere('project.status = :status', { status: 'IN_PROGRESS' })
+        .getCount(),
+      
+      // Completed projects count
+      this.userRepo
+        .createQueryBuilder('user')
+        .leftJoin('user.clientProjects', 'project')
+        .where('user.id = :userId', { userId })
+        .andWhere('project.status = :status', { status: 'COMPLETED' })
+        .getCount(),
+      
+      // Pending bids count
+      this.userRepo
+        .createQueryBuilder('user')
+        .leftJoin('user.clientProjects', 'project')
+        .leftJoin('project.bids', 'bid')
+        .where('user.id = :userId', { userId })
+        .andWhere('bid.status = :status', { status: 'PENDING' })
+        .getCount(),
+      
+      // Total spent
+      this.userRepo
+        .createQueryBuilder('user')
+        .leftJoin('user.sentPayments', 'payment')
+        .where('user.id = :userId', { userId })
+        .andWhere('payment.status = :status', { status: 'COMPLETED' })
+        .select('SUM(payment.amount)', 'total')
+        .getRawOne(),
+    ]);
+
+    // Get recent projects
+    const recentProjects = await this.userRepo
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.clientProjects', 'project')
+      .leftJoinAndSelect('project.category', 'category')
+      .leftJoinAndSelect('project.bids', 'bid')
+      .leftJoinAndSelect('bid.freelancer', 'freelancer')
+      .where('user.id = :userId', { userId })
+      .orderBy('project.createdAt', 'DESC')
+      .take(5)
+      .getOne();
+
+    // Get pending bids
+    const pendingBidsList = await this.userRepo
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.clientProjects', 'project')
+      .leftJoinAndSelect('project.bids', 'bid')
+      .leftJoinAndSelect('bid.freelancer', 'freelancer')
+      .where('user.id = :userId', { userId })
+      .andWhere('bid.status = :status', { status: 'PENDING' })
+      .orderBy('bid.createdAt', 'DESC')
+      .take(5)
+      .getOne();
+
+    return {
+      stats: {
+        activeProjects,
+        completedProjects,
+        pendingBids,
+        totalSpent: totalSpent?.total || 0,
+      },
+      recentProjects: recentProjects?.clientProjects || [],
+      pendingBids: pendingBidsList?.clientProjects?.flatMap(p => p.bids) || [],
+    };
+  }
+
+  private sanitizeUser(user: User) {
     const { passwordHash, refreshToken, ...result } = user;
     return result;
   }

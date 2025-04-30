@@ -1,4 +1,4 @@
-import { Module, Logger } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UploadsController } from './uploads.controller';
 import { UploadsService } from './uploads.service';
 import { MulterModule } from '@nestjs/platform-express';
@@ -42,6 +42,6 @@ import { log } from 'console';
   ],
   controllers: [UploadsController],
   providers: [UploadsService],
-  exports: [UploadsService, UploadsModule],
+  exports: [UploadsService],
 })
 export class UploadsModule {}

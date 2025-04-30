@@ -2,10 +2,11 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, On
 import { User } from './user.entity';
 import { Project } from './project.entity';
 import { File } from './file.entity';
+import { MessageAttachment } from './message-attachment.entity';
 
 @Entity('messages')
 export class Message {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("increment")
   id: number;
 
   @Column({ name: 'project_id' })
@@ -13,9 +14,6 @@ export class Message {
 
   @Column({ name: 'sender_id' })
   senderId: number;
-
-  @Column({ name: 'recipient_id' })
-  recipientId: number;
 
   @Column({ type: 'text' })
   content: string;
@@ -35,10 +33,9 @@ export class Message {
   @JoinColumn({ name: 'sender_id' })
   sender: User;
 
-  @ManyToOne(() => User, user => user.receivedMessages)
-  @JoinColumn({ name: 'recipient_id' })
-  recipient: User;
-
   @OneToMany(() => File, file => file.message)
   files: File[];
+
+  @OneToMany(() => MessageAttachment, attachment => attachment.message)
+  attachments: MessageAttachment[];
 }

@@ -4,7 +4,7 @@ import { CreateFreelancerDto } from './dto/create-freelancer.dto';
 import { UpdateFreelancerDto } from './dto/update-freelancer.dto';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CreateUserDto } from 'src/dtos/user.dto';
+import { CreateUserDto, UpdateUserDto } from 'src/dtos/user.dto';
 
 @Controller('freelancer')
 export class FreelancerController {
@@ -22,6 +22,12 @@ export class FreelancerController {
     return this.freelancerService.findOne(req.user.userId);
   }
 
+  @Get('dashboard')
+  @Roles('freelancer')
+  getDashboard(@Request() req) {
+    return this.freelancerService.getDashboardStats(req.user.userId);
+  }
+
   @Get()
   @Public()
   findAll() {
@@ -36,8 +42,8 @@ export class FreelancerController {
 
   @Patch(':id')
   @Roles('freelancer')
-  update(@Param('id') id: string, @Body() updateFreelancerDto: UpdateFreelancerDto) {
-    return this.freelancerService.update(id, updateFreelancerDto);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.freelancerService.update(id, updateUserDto);
   }
 
   @Delete(':id')

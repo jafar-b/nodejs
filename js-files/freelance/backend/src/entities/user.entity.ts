@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany, JoinColumn } from "typeorm";
 import { Dispute } from "./dispute.entity";
 import { UserRole } from "src/enums/allEnums";
 import { Bid } from "./bid.entity";
@@ -14,10 +14,9 @@ import { Subscription } from "./subscription.entity";
 import { Notification } from "./notification.entity";
 import { ClientInfo } from "./client-info.entity";
 
-
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ unique: true })
@@ -60,8 +59,9 @@ export class User {
   lastLogin: Date;
 
   // Relationships
-@OneToOne(() => ClientInfo, clientInfo => clientInfo.user)
-clientInfo: ClientInfo;
+  @OneToOne(() => ClientInfo, clientInfo => clientInfo.user)
+  clientInfo: ClientInfo;
+
   @OneToOne(() => Profile, profile => profile.user)
   profile: Profile;
 
@@ -79,9 +79,6 @@ clientInfo: ClientInfo;
 
   @OneToMany(() => Message, message => message.sender)
   sentMessages: Message[];
-
-  @OneToMany(() => Message, message => message.recipient)
-  receivedMessages: Message[];
 
   @OneToMany(() => File, file => file.user)
   files: File[];

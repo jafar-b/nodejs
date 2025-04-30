@@ -3,7 +3,7 @@ import { UserSkill } from './userSkill.entity';
 
 @Entity('skills')
 export class Skill {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ unique: true })

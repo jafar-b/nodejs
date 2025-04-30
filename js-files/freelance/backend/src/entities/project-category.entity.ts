@@ -3,7 +3,7 @@ import { Project } from './project.entity';
 
 @Entity('project_categories')
 export class ProjectCategory {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ unique: true })

@@ -12,11 +12,9 @@ import { Dispute } from './dispute.entity';
 import { ProjectStatus, PaymentType, ProjectVisibility } from 'src/enums/allEnums';
 import { ProjectCategory } from './project-category.entity';
 
-
-
 @Entity('projects')
 export class Project {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'client_id' })
@@ -71,6 +69,9 @@ export class Project {
   @Column({ name: 'attachment_urls', type: 'text', array: true, nullable: true })
   attachments: string[];
 
+  @Column({ name: 'bids_count', type: 'int', default: 0 })
+  bidsCount: number;
+
   @ManyToOne(() => User, user => user.clientProjects)
   @JoinColumn({ name: 'client_id' })
   client: User;
@@ -97,6 +98,9 @@ export class Project {
 
   @OneToMany(() => File, file => file.project)
   files: File[];
+
+  @OneToMany(() => Contract, contract => contract.project)
+  contracts: Contract[];
 
   @OneToMany(() => Review, review => review.project)
   reviews: Review[];

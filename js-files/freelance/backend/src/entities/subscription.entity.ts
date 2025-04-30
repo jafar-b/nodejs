@@ -16,7 +16,7 @@ export enum SubscriptionStatus {
 
 @Entity('subscriptions')
 export class Subscription {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'user_id' })

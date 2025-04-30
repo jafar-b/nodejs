@@ -42,23 +42,152 @@ export class InvoicesService {
   }
 
   async findAll(): Promise<Invoice[]> {
-    return await this.invoiceRepository.find();
+    return await this.invoiceRepository.find({
+      relations: ['project', 'milestone'],
+      select: {
+        id: true,
+        projectId: true,
+        milestoneId: true,
+        invoiceNumber: true,
+        amount: true,
+        taxAmount: true,
+        totalAmount: true,
+        status: true,
+        dueDate: true,
+        paymentDate: true,
+        paymentMethod: true,
+        createdAt: true,
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        },
+        milestone: {
+          id: true,
+          title: true
+        }
+      }
+    });
   }
 
   async findAllByFreelancer(freelancerId: string): Promise<Invoice[]> {
-    return await this.invoiceRepository.find({ where: { freelancerId: +freelancerId } });
+    return await this.invoiceRepository.find({
+      where: { freelancerId: +freelancerId },
+      relations: ['project', 'milestone'],
+      select: {
+        id: true,
+        projectId: true,
+        milestoneId: true,
+        invoiceNumber: true,
+        amount: true,
+        taxAmount: true,
+        totalAmount: true,
+        status: true,
+        dueDate: true,
+        paymentDate: true,
+        paymentMethod: true,
+        createdAt: true, 
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        },
+        milestone: {
+          id: true,
+          title: true
+        }
+      }
+    });
   }
 
   async findAllByProject(projectId: string): Promise<Invoice[]> {
-    return await this.invoiceRepository.find({ where: { projectId: +projectId } });
+    return await this.invoiceRepository.find({
+      where: { projectId: +projectId },
+      relations: ['project', 'milestone'],
+      select: {
+        id: true,
+        projectId: true,
+        milestoneId: true,
+        invoiceNumber: true,
+        amount: true,
+        taxAmount: true,
+        totalAmount: true,
+        status: true,
+        dueDate: true,
+        paymentDate: true,
+        paymentMethod: true,
+        createdAt: true,
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        },
+        milestone: {
+          id: true,
+          title: true
+        }
+      }
+    });
   }
 
   async findAllByMilestone(milestoneId: string): Promise<Invoice[]> {
-    return await this.invoiceRepository.find({ where: { milestoneId: +milestoneId } });
+    return await this.invoiceRepository.find({
+      where: { milestoneId: +milestoneId },
+      relations: ['project', 'milestone'],
+      select: {
+        id: true,
+        projectId: true,
+        milestoneId: true,
+        invoiceNumber: true,
+        amount: true,
+        taxAmount: true,
+        totalAmount: true,
+        status: true,
+        dueDate: true,
+        paymentDate: true,
+        paymentMethod: true,
+        createdAt: true,
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        },
+        milestone: {
+          id: true,
+          title: true
+        }
+      }
+    });
   }
 
   async findOne(id: string): Promise<Invoice> {
-    const invoice = await this.invoiceRepository.findOne({ where: { id: +id } });
+    const invoice = await this.invoiceRepository.findOne({
+      where: { id: +id },
+      relations: ['project', 'milestone'],
+      select: {
+        id: true,
+        projectId: true,
+        milestoneId: true,
+        invoiceNumber: true,
+        amount: true,
+        taxAmount: true,
+        totalAmount: true,
+        status: true,
+        dueDate: true,
+        paymentDate: true,
+        paymentMethod: true,
+        createdAt: true,
+        updatedAt: true,
+        project: {
+          id: true,
+          title: true
+        },
+        milestone: {
+          id: true,
+          title: true
+        }
+      }
+    });
     if (!invoice) {
       throw new NotFoundException(`Invoice with ID ${id} not found`);
     }

@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Project } from './project.entity';
 import { Message } from './message.entity';
 import { Milestone } from './milestone.entity';
 import { User } from './user.entity';
+import { MessageAttachment } from './message-attachment.entity';
 
 export enum FileCategory {
   DELIVERABLE = 'DELIVERABLE',
@@ -13,7 +14,7 @@ export enum FileCategory {
 
 @Entity('files')
 export class File {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'project_id', nullable: true })
@@ -46,6 +47,7 @@ export class File {
   @Column({
     type: 'enum',
     enum: FileCategory,
+    default: FileCategory.MESSAGE_ATTACHMENT
   })
   category: FileCategory;
 
@@ -64,4 +66,10 @@ export class File {
   @ManyToOne(() => User, user => user.files)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @OneToMany(() => MessageAttachment, attachment => attachment.file)
+  messageAttachments: MessageAttachment[];
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

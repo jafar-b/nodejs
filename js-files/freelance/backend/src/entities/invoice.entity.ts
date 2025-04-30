@@ -12,7 +12,7 @@ export enum InvoiceStatus {
 
 @Entity('invoices')
 export class Invoice {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'project_id' })

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, Delete, Request, Patch, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Request, Patch, ForbiddenException, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from 'src/dtos/message.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('messages')
 export class MessagesController {
@@ -54,5 +55,28 @@ export class MessagesController {
   @Roles('client', 'freelancer')
   remove(@Param('id') id: string, @Request() req) {
     return this.messagesService.remove(id, req.user.userId);
+  }
+
+  @Get(':projectId')
+  @Roles('client', 'freelancer')
+  getMessages(@Param('projectId') projectId: string, @Request() req) {
+    return this.messagesService.getMessages(+projectId, req.user.userId);
+  }
+
+  @Post(':projectId')
+  @Roles('client', 'freelancer')
+  @UseInterceptors(FilesInterceptor('attachments'))
+  sendMessage(
+    @Param('projectId') projectId: string,
+    @Body() createMessageDto: CreateMessageDto,
+    @Request() req,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return this.messagesService.sendMessage(
+      +projectId,
+      req.user.userId,
+      createMessageDto,
+      files,
+    );
   }
 } 

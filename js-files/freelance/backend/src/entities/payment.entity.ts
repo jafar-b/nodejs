@@ -11,7 +11,7 @@ export enum PaymentStatus {
 
 @Entity('payments')
 export class Payment {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("increment")
   id: number;
 
   @Column({ name: 'invoice_id' })

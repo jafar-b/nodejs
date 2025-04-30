@@ -12,7 +12,7 @@ export enum MilestoneStatus {
 
 @Entity('milestones')
 export class Milestone {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'project_id' })

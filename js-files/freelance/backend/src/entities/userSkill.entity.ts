@@ -6,7 +6,7 @@ import { ProficiencyLevel } from "../enums/allEnums";
 @Entity('user_skills')
 @Unique(['user_id', 'skill_id'])
 export class UserSkill {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()

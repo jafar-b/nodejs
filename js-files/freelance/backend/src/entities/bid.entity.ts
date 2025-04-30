@@ -11,7 +11,7 @@ export enum BidStatus {
 
 @Entity('bids')
 export class Bid {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'project_id' })

@@ -3,6 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ClientService } from '../client/client.service';
 import { FreelancerService } from '../freelancer/freelancer.service';
+import { UserRole } from 'src/enums/allEnums';
+import * as dotenv from 'dotenv';
+import { log } from 'console';
+
+dotenv.config();
 
 @Injectable()
 export class AuthService {
@@ -12,12 +17,11 @@ export class AuthService {
     private freelancerService: FreelancerService,
   ) {}
 
-  // JWT configuration
   private jwtConstants = {
-    accessSecret: 'your_access_secret_key', 
-    refreshSecret: 'your_refresh_secret_key',
-    accessExpiresIn: '5hr',
-    refreshExpiresIn: '7d',
+    accessSecret: process.env.JWT_ACCESS_SECRET || 'your_access_secret_key',
+    refreshSecret: process.env.JWT_REFRESH_SECRET || 'your_refresh_secret_key',
+    accessExpiresIn: process.env.JWT_ACCESS_EXPIRATION || '5h',
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRATION || '7d',
   };
 
   async validateClient(email: string, password: string) {
@@ -27,7 +31,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
     console.log('Client passwordHash:', client.passwordHash);
-    const isPasswordValid = await bcrypt.compare(password, client.passwordHash); // Use passwordHash
+    const isPasswordValid = await bcrypt.compare(password, client.passwordHash); 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -52,7 +56,7 @@ export class AuthService {
     const payload = { 
       sub: client.id,
       email: client.email,
-      role: 'client',
+      role: UserRole.CLIENT,
     };
     
     return this.generateTokens(payload);
@@ -62,7 +66,7 @@ export class AuthService {
     const payload = { 
       sub: freelancer.id,
       email: freelancer.email,
-      role: 'freelancer',
+      role: UserRole.FREELANCER,
     };
     
     return this.generateTokens(payload);
@@ -71,9 +75,9 @@ export class AuthService {
   async refreshTokens(userId: string, role: string, refreshToken: string) {
     let user;
     
-    if (role === 'client') {
+    if (role === UserRole.CLIENT) {
       user = await this.clientService.findOne(userId);
-    } else if (role === 'freelancer') {
+    } else if (role === UserRole.FREELANCER) {
       user = await this.freelancerService.findOne(userId);
     } else {
       throw new UnauthorizedException('Invalid role');
@@ -107,12 +111,10 @@ export class AuthService {
       expiresIn: this.jwtConstants.refreshExpiresIn,
     });
 
-    // In a real app, you would save the hashed refresh token in the database
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    
-    if (payload.role === 'client') {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);    
+    if (payload.role === UserRole.CLIENT) {
       await this.clientService.updateRefreshToken(payload.sub, hashedRefreshToken);
-    } else if (payload.role === 'freelancer') {
+    } else if (payload.role === UserRole.FREELANCER) {
       await this.freelancerService.updateRefreshToken(payload.sub, hashedRefreshToken);
     }
     
@@ -123,10 +125,64 @@ export class AuthService {
   }
 
   async removeRefreshToken(userId: string, role: string) {
-    if (role === 'client') {
+    if (role === UserRole.CLIENT) {
       return this.clientService.updateRefreshToken(userId, "null");
-    } else if (role === 'freelancer') {
+    } else if (role === UserRole.FREELANCER) {
       return this.freelancerService.updateRefreshToken(userId, null);
+    }
+  }
+
+  async login(email: string, password: string) {
+    // Try freelancer login first
+    try {
+      const freelancer = await this.validateFreelancer(email, password);
+      const tokens = await this.loginFreelancer(freelancer);
+      log( {token: tokens,
+        user: {
+          id: freelancer.id,
+          email: freelancer.email,
+          role: UserRole.FREELANCER,
+          firstName: freelancer.firstName,
+          lastName: freelancer.lastName,
+    }})
+
+      return {
+        ...tokens,
+        user: {
+          id: freelancer.id,
+          email: freelancer.email,
+          role: UserRole.FREELANCER,
+          firstName: freelancer.firstName,
+          lastName: freelancer.lastName,
+        }
+      };
+    } catch (error) {
+      // If freelancer login fails, try client login
+      try {
+        const client = await this.validateClient(email, password);
+        const tokens = await this.loginClient(client);
+        log( {token: tokens,
+          user: {
+            id: client.id,
+            email: client.email,
+            role: UserRole.CLIENT,
+            firstName: client.firstName,
+            lastName: client.lastName,
+      }})
+
+        return {
+          ...tokens,
+          user: {
+            id: client.id,
+            email: client.email,
+            role: UserRole.CLIENT,
+            firstName: client.firstName,
+            lastName: client.lastName,
+          }
+        };
+      } catch (error) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
     }
   }
 }

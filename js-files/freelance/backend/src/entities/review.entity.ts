@@ -5,7 +5,7 @@ import { Project } from './project.entity';
 @Entity('reviews')
 @Unique(['projectId', 'reviewerId', 'revieweeId'])
 export class Review {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'project_id' })

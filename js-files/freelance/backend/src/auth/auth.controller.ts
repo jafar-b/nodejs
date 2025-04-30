@@ -8,23 +8,9 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @Post('client/login')
-  async clientLogin(@Body() loginDto: { email: string; password: string }) {
-    const client = await this.authService.validateClient(
-      loginDto.email,
-      loginDto.password,
-    );
-    return this.authService.loginClient(client);
-  }
-
-  @Public()
-  @Post('freelancer/login')
-  async freelancerLogin(@Body() loginDto: { email: string; password: string }) {
-    const freelancer = await this.authService.validateFreelancer(
-      loginDto.email,
-      loginDto.password,
-    );
-    return this.authService.loginFreelancer(freelancer);
+  @Post('login')
+  async login(@Body() loginDto: { email: string; password: string }) {
+    return this.authService.login(loginDto.email, loginDto.password);
   }
 
   @Public()

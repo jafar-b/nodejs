@@ -11,7 +11,7 @@ export enum ContractStatus {
 
 @Entity('contracts')
 export class Contract {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ name: 'project_id', unique: true })
