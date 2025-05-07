@@ -1,4 +1,11 @@
 # SkillSync Freelance Platform
+
+
+
+https://github.com/user-attachments/assets/f39954e9-16dc-4a94-9198-99a7aa377d73
+
+
+
 # ER Diagram
 
 ![freelance drawio](https://github.com/user-attachments/assets/17804feb-86ad-4063-9e37-01f16ec83086)
@@ -29,8 +36,8 @@ SkillSync is a comprehensive freelance platform designed to connect talented fre
 - **Project Management**: Create, update, and track projects
 - **Milestone Tracking**: Break projects into manageable milestones with payment integration
 - **Bidding System**: Freelancers can bid on available projects
-- **Skills Categorization**: Browse freelancers by skills and expertise
-- **File Upload**: Support for project attachments and deliverables
+- **File Upload**: Support for profile photo
+- **Invoice Generation and Download**: invoice download feature
 - **Search Functionality**: search projects
 
 ## Tech Stack
