@@ -237,7 +237,7 @@ function HomePage() {
               as={RouterLink}
               to="/register"
               bg='white'
-              color='brand.500'
+              color='brand'
               size='lg'
               rounded='md'
               px={8}

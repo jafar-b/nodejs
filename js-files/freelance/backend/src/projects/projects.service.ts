@@ -15,16 +15,37 @@ export class ProjectsService {
 
   async create(createProjectDto: CreateProjectDto, clientId: string, files: Array<Express.Multer.File> = []) {
     const attachments = files.length > 0 ? files.map(file => this.uploadsService.getFileUrl(file.filename)) : [];
+    
+    // Ensure status is set to OPEN by default
+    if (!createProjectDto.status) {
+      createProjectDto.status = ProjectStatus.OPEN;
+    }
+    
+    console.log('Creating project with status:', createProjectDto.status);
+    
     const newProject = this.projectRepo.create({
       ...createProjectDto,
       clientId: +clientId,
       attachments,
     });
-    return await this.projectRepo.save(newProject);
+    
+    const savedProject = await this.projectRepo.save(newProject);
+    console.log('Saved project with status:', savedProject.status);
+    
+    return savedProject;
   }
 
-  async findAll() {
+  async findAll(query?: { status?: string }) {
+    // Build query object
+    const whereCondition: any = {};
+    
+    // Add status filter if provided
+    if (query?.status) {
+      whereCondition.status = query.status;
+    }
+    
     const projects = await this.projectRepo.find({
+      where: Object.keys(whereCondition).length > 0 ? whereCondition : undefined,
       relations: ['client', 'assignedFreelancer', 'category', 'bids'],
       select: {
         id: true,

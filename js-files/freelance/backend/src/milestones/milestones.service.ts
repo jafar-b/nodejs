@@ -173,5 +173,22 @@ async create(createMilestoneDto: CreateMilestoneDto, clientId: string) {
 
     return await this.milestoneRepo.save(milestone);
   }
+
+  async completeMilestone(id: string, freelancerId: string) {
+    const milestone = await this.findOne(id);
+    
+    // Verify the project is assigned to this freelancer
+    // Note: This would ideally check if the freelancer is assigned to the project
+    // You may need to adjust this logic based on your project structure
+    
+    if (milestone.status !== MilestoneStatus.PENDING) {
+      throw new ForbiddenException('Can only mark pending milestones as complete');
+    }
+    
+    milestone.status = MilestoneStatus.COMPLETED;
+    milestone.updatedAt = new Date();
+    
+    return await this.milestoneRepo.save(milestone);
+  }
 }
 

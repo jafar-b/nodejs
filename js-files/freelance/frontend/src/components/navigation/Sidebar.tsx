@@ -13,9 +13,7 @@ import {
   FiFileText,
   FiMessageSquare,
   FiSearch,
-  FiPlus,
-
-  FiDollarSign
+  FiPlus
 } from 'react-icons/fi';
 import { IconType } from 'react-icons';
 import { userRole } from '@/AllEnums';
@@ -108,9 +106,6 @@ function Sidebar({  userRole }: SidebarProps) {
             </NavItem>
             <NavItem icon={FiFileText} to="/dashboard/milestones">
               My Milestones
-            </NavItem>
-            <NavItem icon={FiDollarSign} to="/dashboard/invoices">
-              My Invoices
             </NavItem>
           </>
         )}

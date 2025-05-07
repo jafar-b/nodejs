@@ -117,7 +117,7 @@ function EditProjectPage() {
       queryClient.invalidateQueries({ queryKey: ['clientProjects'] });
       
       // Navigate to the project detail page
-      navigate(`/projects/${id}`);
+      navigate(`/dashboard/projects/${id}`);
     },
     onError: (error) => {
       console.error('Project update error:', error);

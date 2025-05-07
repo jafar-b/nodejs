@@ -74,4 +74,16 @@ export class MilestonesController {
       req.user.userId,
     );
   }
+
+  @Post(':id/complete')
+  @Roles('freelancer')
+  completeMilestone(
+    @Param('id') id: string,
+    @Request() req,
+  ) {
+    return this.milestonesService.completeMilestone(
+      id,
+      req.user.userId,
+    );
+  }
 }

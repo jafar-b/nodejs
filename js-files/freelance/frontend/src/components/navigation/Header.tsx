@@ -84,13 +84,13 @@ function Header({ onMenuOpen }: HeaderProps) {
                     <HStack>
                       <Avatar 
                         size="sm" 
-                        name={user?.name} 
-                        src={user?.avatar} 
+                        name={`${user?.firstName || ''} ${user?.lastName || ''}`}
+                        src={user?.profileImage || user?.profile?.profileImage || user?.avatar || user?.avatarUrl || user?.profile?.avatar}
                       />
                       <Text 
                         display={{ base: 'none', md: 'block' }}
                       >
-                        {user?.name}
+                        {`${user?.firstName || ''} ${user?.lastName || ''}`}
                       </Text>
                     </HStack>
                   </MenuButton>

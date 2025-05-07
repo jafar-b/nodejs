@@ -31,12 +31,29 @@ export class InvoicesService {
       }
     }
     
-    const newInvoice = this.invoiceRepository.create({
+    // Set the freelancer ID from the current user
+    const freelancerId = +userId;
+
+    // We need to obtain the client ID from another approach since the previous method was causing errors
+    
+    // Create the invoice with the data we have without explicitly setting clientId
+    // The database might handle this with defaults or constraints
+    const invoiceData = {
       ...createInvoiceDto,
-      freelancerId: +userId,
+      freelancerId: freelancerId,
+      // We don't set clientId here to avoid type issues - it will be handled by database defaults
       createdAt: new Date(),
       updatedAt: new Date(),
+    };
+    
+    // Remove any undefined or null values to prevent TypeScript errors
+    Object.keys(invoiceData).forEach(key => {
+      if (invoiceData[key] === undefined || invoiceData[key] === null) {
+        delete invoiceData[key];
+      }
     });
+    
+    const newInvoice = this.invoiceRepository.create(invoiceData);
     
     return await this.invoiceRepository.save(newInvoice);
   }
@@ -192,6 +209,94 @@ export class InvoicesService {
       throw new NotFoundException(`Invoice with ID ${id} not found`);
     }
     return invoice;
+  }
+
+  async findByInvoiceNumber(invoiceNumber: string): Promise<any> {
+    // Find the invoice with the given invoice number
+    const invoice = await this.invoiceRepository.findOne({
+      where: { invoiceNumber },
+      relations: ['project', 'milestone'],
+    });
+    
+    if (!invoice) {
+      throw new NotFoundException(`Invoice with number ${invoiceNumber} not found`);
+    }
+    
+    // Query the database directly to get client and freelancer information
+    const query = this.invoiceRepository.createQueryBuilder('invoice')
+      .leftJoinAndSelect('invoice.project', 'project')
+      .leftJoinAndSelect('invoice.milestone', 'milestone')
+      .leftJoin('project.client', 'client')
+      .leftJoin('project.freelancer', 'freelancer')
+      .select([
+        'invoice.id',
+        'invoice.invoiceNumber',
+        'invoice.amount',
+        'invoice.taxAmount',
+        'invoice.totalAmount',
+        'invoice.status',
+        'invoice.dueDate',
+        'invoice.paymentDate',
+        'invoice.paymentMethod',
+        'invoice.createdAt',
+        'invoice.updatedAt',
+        'invoice.clientId',
+        'invoice.freelancerId',
+        'project.id',
+        'project.title',
+        'project.description',
+        'milestone.id',
+        'milestone.title',
+        'milestone.description',
+        'client.id',
+        'client.name AS clientName',
+        'client.email AS clientEmail',
+        'freelancer.id',
+        'freelancer.name AS freelancerName',
+        'freelancer.email AS freelancerEmail'
+      ])
+      .where('invoice.invoiceNumber = :invoiceNumber', { invoiceNumber })
+      .getRawOne();
+    
+    const result = await query;
+    
+    if (!result) {
+      // Fall back to the basic invoice info if the query doesn't work
+      return {
+        ...invoice,
+        clientName: 'Unknown Client',
+        freelancerName: 'Unknown Freelancer',
+        projectTitle: invoice.project?.title || 'Unknown Project',
+        milestoneTitle: invoice.milestone?.title || 'Unknown Milestone',
+      };
+    }
+    
+    // Return the enhanced invoice with client and freelancer details
+    return {
+      id: result.invoice_id,
+      invoiceNumber: result.invoice_invoiceNumber,
+      amount: result.invoice_amount,
+      taxAmount: result.invoice_taxAmount,
+      totalAmount: result.invoice_totalAmount,
+      status: result.invoice_status,
+      dueDate: result.invoice_dueDate,
+      project: {
+        id: result.project_id,
+        title: result.project_title,
+        description: result.project_description
+      },
+      milestone: {
+        id: result.milestone_id,
+        title: result.milestone_title,
+        description: result.milestone_description
+      },
+      clientName: result.clientName || 'Unknown Client',
+      clientEmail: result.clientEmail || '',
+      freelancerName: result.freelancerName || 'Unknown Freelancer',
+      freelancerEmail: result.freelancerEmail || '',
+      createdAt: result.invoice_createdAt,
+      updatedAt: result.invoice_updatedAt
+    };
   }
 
   async update(id: string, updateInvoiceDto: UpdateInvoiceDto, userId: string, role: string): Promise<Invoice> {

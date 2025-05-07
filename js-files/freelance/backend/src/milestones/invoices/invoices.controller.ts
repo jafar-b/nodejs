@@ -92,6 +92,12 @@ export class InvoicesController {
     return this.invoicesService.findOne(id);
   }
 
+  @Get('number/:invoiceNumber')
+  @Roles('client', 'freelancer')
+  findByInvoiceNumber(@Param('invoiceNumber') invoiceNumber: string) {
+    return this.invoicesService.findByInvoiceNumber(invoiceNumber);
+  }
+
   @Patch(':id')
   @Roles('client', 'freelancer')
   update(

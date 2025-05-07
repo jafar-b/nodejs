@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -47,9 +47,8 @@ import { format } from 'date-fns';
 import useAuth from '@/hooks/useAuth';
 import apiService from '@/api/ApiConfig';
 import { userRole } from '@/AllEnums';
-import BidList from '../components/projects/BidList';
-import MilestoneList from '../components/projects/MilestoneList';
-import MessageList from '../components/messaging/MessageList';
+import BidList from '@components/projects/BidList';
+import MilestoneList from '@components/projects/MilestoneList';
 
 interface ProjectDetail {
   id: string;
@@ -89,7 +88,7 @@ function ProjectDetailPage() {
   const [project, setProject] = useState<ProjectDetail | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { isOpen, onClose } = useDisclosure();
+  const { isOpen,  onClose } = useDisclosure();
   const [milestoneData, setMilestoneData] = useState({
     title: '',
     description: '',
@@ -199,30 +198,36 @@ function ProjectDetailPage() {
             <Box>
               <Heading size="lg" mb={2}>{project.title}</Heading>
               <HStack>
-                <Badge colorScheme={getStatusColor(project.status)}>{project.status}</Badge>
-                <Text fontSize="sm" color="gray.500">
+                <Badge colorScheme={getStatusColor(project.status)}>
+                  {project.status.toUpperCase()}
+                </Badge>
+                <Text color="gray.500">
                   Posted {format(new Date(project.createdAt), 'MMM dd, yyyy')}
                 </Text>
               </HStack>
             </Box>
-            <VStack align="flex-end" spacing={2}>
-              <HStack>
-                <FiDollarSign />
-                <Text fontWeight="bold">${project.budget}</Text>
-              </HStack>
-              <HStack>
-                <FiClock />
-                <Text>Due {format(new Date(project.deadline), 'MMM dd, yyyy')}</Text>
-              </HStack>
-            </VStack>
+            
+            {isProjectOwner && (
+              <Button 
+                variant="outline" 
+                colorScheme="brand"
+                onClick={() => navigate(`/dashboard/projects/edit/${project.id}`)}
+              >
+                Edit Project
+              </Button>
+            )}
           </HStack>
 
-          <HStack mb={4} spacing={4}>
+          <Divider my={4} />
+
+          <HStack spacing={10} mb={4}>
             <HStack>
-              <Text fontWeight="semibold">Status:</Text>
-              <Badge colorScheme={getStatusColor(project.status)}>
-                {project.status}
-              </Badge>
+              <Icon as={FiDollarSign} color="green.500" />
+              <Text>${project.budget.toLocaleString()}</Text>
+            </HStack>
+            <HStack>
+              <Icon as={FiClock} color="orange.500" />
+              <Text>Due {format(new Date(project.deadline), 'MMM dd, yyyy')}</Text>
             </HStack>
             <HStack>
               <Text fontWeight="semibold">Category:</Text>
@@ -237,7 +242,7 @@ function ProjectDetailPage() {
 
           {project.skills && project.skills.length > 0 && (
             <Box mb={4}>
-              <Text fontWeight="semibold" mb={2}>Skills</Text>
+              <Text fontWeight="semibold" mb={2}>Skills Required</Text>
               <Wrap>
                 {project.skills.map((skill, index) => (
                   <WrapItem key={index}>
@@ -325,38 +330,7 @@ function ProjectDetailPage() {
           </TabPanel>
           <TabPanel>
             {/* Messages content */}
-            {/* Only show messages if the user is the project owner or the assigned freelancer */}
-            {(isProjectOwner || 
-              (user?.role === userRole.FREELANCER && 
-               project.freelancer && 
-               user.id === project.freelancer.id)) ? (
-              <Box mb={4}>
-                <MessageList projectId={project.id} />
-              </Box>
-            ) : (
-              <Box textAlign="center" py={10}>
-                <Text color="red.500">
-                  You are not authorized to view messages for this project.
-                </Text>
-                <Text mt={2} fontSize="sm" color="gray.500">
-                  Only the client who created this project and the assigned freelancer can access messages.
-                </Text>
-              </Box>
-            )}
-          </TabPanel>
-          <TabPanel>
-            <Box mb={4}>
-              {/* Milestone content */}
-              <MilestoneList 
-                projectId={project.id} 
-                isProjectOwner={isProjectOwner}
-              />
-            </Box>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+            <Text>Messages content would go here</Text>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Create New Milestone</ModalHeader>
@@ -435,4 +409,4 @@ function getStatusColor(status: string): string {
   }
 }
 
-export default ProjectDetailPage;
+export default ProjectDetailPage;  

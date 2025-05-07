@@ -186,7 +186,7 @@ function BidList({ projectId, isProjectOwner }: BidListProps) {
     <Box>
       {isFreelancer && !isProjectOwner && (
         <Button
-          colorScheme="brand"
+          colorScheme="blue"
           mb={6}
           onClick={onOpen}
         >
@@ -372,7 +372,7 @@ function BidList({ projectId, isProjectOwner }: BidListProps) {
 
                 <Button
                   type="submit"
-                  colorScheme="brand"
+                  colorScheme="blue"
                   width="full"
                   isLoading={isSubmitting}
                 >

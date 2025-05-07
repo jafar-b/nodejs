@@ -3,6 +3,8 @@ import { UserService } from './user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateUserDto } from '../dtos/user.dto';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('user')
 export class UserController {
@@ -22,8 +24,34 @@ export class UserController {
 
   @Post('profile/avatar')
   @Roles('client', 'freelancer')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadAvatar(@Request() req, @UploadedFile() file: Express.Multer.File) {
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, callback) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+          const ext = extname(file.originalname);
+          const filename = `${uniqueSuffix}${ext}`;
+          console.log('Generated filename in controller:', filename);
+          callback(null, filename);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/^image\//)) {
+          return callback(new Error('Only image files are allowed!'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  uploadAvatar(
+    @Request() req, 
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    console.log('Controller received file:', file); // Debug log
+    if (!file) {
+      throw new Error('No file received');
+    }
     return this.userService.uploadAvatar(req.user.userId, file);
   }
 }

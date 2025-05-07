@@ -165,12 +165,13 @@ function MilestoneList({ projectId, isProjectOwner }: MilestoneListProps) {
 
   const handleGenerateInvoice = async (milestoneId: string) => {
     try {
+      console.log(`Generating invoice for milestone: ${milestoneId}`);
       await apiService.invoices.generateInvoice({
         projectId: projectId,
         status: 'pending'
       });
       toast({
-        title: 'Invoice generated successfully',
+        title: 'Invoice generated',
         status: 'success',
         duration: 3000,
         isClosable: true,

@@ -229,8 +229,17 @@ const apiService = {
   
   // Messages endpoints
   messages: {
-    getByProject: (projectId: string): Promise<AxiosResponse> => 
-      api.get(`/messages/${projectId}`),
+    getByProject: (projectId: string): Promise<AxiosResponse> => {
+      // Get the current user ID from local storage to pass in the query params
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      const userId = user?.id;
+      
+      // Include user ID in the query params for backend filtering
+      return api.get(`/messages/${projectId}`, {
+        params: { userId }
+      });
+    },
     
     send: (projectId: string, messageData: MessageData): Promise<AxiosResponse> => {
       const formData = new FormData();
@@ -301,6 +310,9 @@ const apiService = {
     
     getById: (id: string): Promise<AxiosResponse> => 
       api.get(`/invoices/${id}`),
+      
+    getByInvoiceNumber: (invoiceNumber: string): Promise<AxiosResponse> => 
+      api.get(`/invoices/number/${invoiceNumber}`),
     
     create: (invoiceData: InvoiceData): Promise<AxiosResponse> => {
       const formData = new FormData();
@@ -335,7 +347,11 @@ const apiService = {
     markAsPaid: (id: string): Promise<AxiosResponse> => 
       api.post(`/invoices/${id}/pay`),
 
-    generateInvoice: (params: { projectId: string | null; status: string }): Promise<AxiosResponse> => 
+    generateInvoice: (params: { 
+      projectId: string | null; 
+      status: string; 
+      // Only include parameters that the backend API supports
+    }): Promise<AxiosResponse> => 
       api.get('/invoices/generate', { 
         params,
         responseType: 'blob'

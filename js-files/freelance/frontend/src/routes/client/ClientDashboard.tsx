@@ -271,7 +271,7 @@ export function ClientDashboard() {
                       </VStack>
                       <Button
                         as={Link}
-                        to={`/projects/${bid.projectId}`}
+                        to={`/dashboard/projects/${bid.projectId}`}
                         size="sm"
                         colorScheme="blue"
                         variant="outline"

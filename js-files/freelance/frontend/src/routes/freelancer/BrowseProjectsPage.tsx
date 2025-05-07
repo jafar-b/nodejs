@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Box,
   Heading,
@@ -10,7 +11,6 @@ import {
   InputLeftElement,
   Select,
   VStack,
-  Badge,
   Divider,
   Flex,
   Checkbox,
@@ -34,12 +34,14 @@ import {
   Alert,
   AlertIcon,
 } from '@chakra-ui/react';
-import { useState } from 'react';
-import { FiSearch, FiFilter, FiChevronRight } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiRefreshCw } from 'react-icons/fi';
+import ProjectCard from '@/components/projects/ProjectCard';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@/api/ApiConfig';
-import ProjectCard from '@components/projects/ProjectCard';
 import { ProjectStatus } from '@/AllEnums';
+
+type SortOption = 'newest' | 'oldest' | 'budget-high' | 'budget-low' | 'deadline';
+type ExperienceLevel = 'all' | 'entry' | 'intermediate' | 'expert';
 
 const CATEGORIES = [
   'Web Development',
@@ -54,29 +56,37 @@ const CATEGORIES = [
   'Other',
 ] as const;
 
-type Category = typeof CATEGORIES[number];
+type CategoryName = typeof CATEGORIES[number];
+
+interface CategoryObject {
+  id: number;
+  name: string;
+}
 
 interface Project {
-  id: string;
+  id: string | number;
   title: string;
   description: string;
-  category: Category;
-  budget: number;
-  experienceLevel: ExperienceLevel;
+  category: CategoryObject | CategoryName; 
+  budget: number | string;
+  experienceLevel?: ExperienceLevel;
   createdAt: string;
   deadline: string;
   bidsCount: number;
   status: ProjectStatus;
+  client?: {
+    id: number;
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+  };
 }
-
-type SortOption = 'newest' | 'oldest' | 'budget-high' | 'budget-low' | 'deadline';
-type ExperienceLevel = 'all' | 'entry' | 'intermediate' | 'expert';
 
 function BrowseProjectsPage() {
   // States
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
-  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 5000]);
+  const [selectedCategories, setSelectedCategories] = useState<CategoryName[]>([]);
+  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 200000]); // Increased max to 200,000 to show higher budget projects
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>('all');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   
@@ -84,57 +94,56 @@ function BrowseProjectsPage() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const isMobile = useBreakpointValue({ base: true, md: false });
   
-  // Fetch available projects
-  const { data, isLoading, error } = useQuery<{ data: Project[] }, Error>({
+  // Fetch available projects - simplified query
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['availableProjects'],
-    queryFn: () => apiService.projects.getAll({ status: 'open' }),
+    queryFn: () => apiService.projects.getAll({ status: ProjectStatus.OPEN }),
+    staleTime: 5000,
+    refetchOnWindowFocus: true,
   });
   
-  const projects = data?.data || [];
+  console.log('API Response:', data);
   
-  // Filter projects based on search and filters
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          project.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = selectedCategories.length === 0 || 
-                           selectedCategories.includes(project.category);
-    
-    const matchesBudget = project.budget >= budgetRange[0] && 
-                         project.budget <= budgetRange[1];
-    
-    const matchesExperience = experienceLevel === 'all' || 
-                            project.experienceLevel === experienceLevel;
-    
-    return matchesSearch && matchesCategory && matchesBudget && matchesExperience;
-  });
-  
-  // Sort projects
-  const sortedProjects = [...filteredProjects].sort((a, b) => {
-    switch (sortBy) {
-      case 'newest':
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      case 'oldest':
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      case 'budget-high':
-        return b.budget - a.budget;
-      case 'budget-low':
-        return a.budget - b.budget;
-      case 'deadline':
-        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
-      default:
-        return 0;
+  // Process the API response
+  let projects: Project[] = [];
+  if (data) {
+    if (Array.isArray(data)) {
+      projects = data;
+    } else if (data.data && Array.isArray(data.data)) {
+      projects = data.data;
     }
+  }
+  
+  console.log('Projects:', projects);
+
+  // Restore proper filtering for projects
+  const filteredProjects = projects.filter(project => {
+    if (!project || !project.title || !project.description) return false;
+    
+    // Match search term against title and description
+    const matchesSearch = searchTerm.trim() === '' || 
+                         project.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         project.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Get category name
+    const getCategoryName = (cat: any): string => {
+      if (typeof cat === 'string') return cat;
+      if (cat && cat.name) return cat.name;
+      return 'Unknown';
+    };
+    
+    // Match selected categories
+    const categoryName = getCategoryName(project.category);
+    const matchesCategory = selectedCategories.length === 0 || 
+                          selectedCategories.some(c => categoryName.includes(c));
+    
+    // Parse budget for comparison
+    const projectBudget = typeof project.budget === 'string' ? parseFloat(project.budget) : project.budget;
+    const matchesBudget = projectBudget >= budgetRange[0] && projectBudget <= budgetRange[1];
+    
+    return matchesSearch && matchesCategory && matchesBudget;
   });
-  
-  const handleCategoryChange = (category: Category) => {
-    setSelectedCategories((prev) => 
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
-  };
-  
+
   // Filter components
   const FiltersContent = () => (
     <VStack align="start" spacing={6} w="full">
@@ -146,8 +155,8 @@ function BrowseProjectsPage() {
           {CATEGORIES.map((category) => (
             <Checkbox
               key={category}
-              isChecked={selectedCategories.includes(category)}
-              onChange={() => handleCategoryChange(category)}
+              isChecked={selectedCategories.includes(category as CategoryName)}
+              onChange={() => handleCategoryChange(category as CategoryName)}
             >
               {category}
             </Checkbox>
@@ -162,10 +171,11 @@ function BrowseProjectsPage() {
           Budget Range
         </Text>
         <VStack spacing={4} w="full">
+          {/* Increased max to match the default range maximum */}
           <RangeSlider
             min={0}
-            max={5000}
-            step={100}
+            max={200000}
+            step={1000}
             value={budgetRange}
             onChange={(val) => setBudgetRange(val as [number, number])}
           >
@@ -208,23 +218,31 @@ function BrowseProjectsPage() {
       </Box>
     </VStack>
   );
-  
-  if (isLoading) {
-    return (
-      <Flex justify="center" py={10}>
-        <Spinner size="lg" color="blue.500" />
-      </Flex>
+
+  const handleCategoryChange = (category: CategoryName) => {
+    setSelectedCategories((prev) => 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
     );
-  }
+  };
   
-  if (error) {
-    return (
-      <Alert status="error" mb={6}>
-        <AlertIcon />
-        Error loading projects: {error instanceof Error ? error.message : 'Unknown error'}
-      </Alert>
-    );
-  }
+  // Simple debug component for development
+  const DebugProjects = () => (
+    <Box mt={6} p={4} bg="gray.50" borderRadius="md">
+      <Heading size="sm" mb={2}>Debug Projects Data</Heading>
+      <Text>Total projects: {projects.length}</Text>
+      <Text>Filtered projects: {filteredProjects.length}</Text>
+      {filteredProjects.map(project => (
+        <Box key={project.id} p={2} my={2} bg="white" borderRadius="md" boxShadow="sm">
+          <Text fontWeight="bold">{project.title}</Text>
+          <Text>ID: {project.id}</Text>
+          <Text>Category: {typeof project.category === 'string' ? project.category : project.category.name}</Text>
+          <Text>Budget: ${typeof project.budget === 'string' ? project.budget : project.budget.toFixed(2)}</Text>
+        </Box>
+      ))}
+    </Box>
+  );
   
   return (
     <Box>
@@ -235,15 +253,28 @@ function BrowseProjectsPage() {
             <Text color="gray.600">Find projects that match your skills</Text>
           </Box>
           
-          {isMobile && (
+          <HStack spacing={2}>
             <Button
-              leftIcon={<FiFilter />}
-              onClick={onOpen}
+              leftIcon={<FiRefreshCw />}
+              onClick={() => refetch()}
               variant="outline"
+              size="sm"
+              isLoading={isLoading}
             >
-              Filters
+              Refresh
             </Button>
-          )}
+            
+            {isMobile && (
+              <Button
+                leftIcon={<FiFilter />}
+                onClick={onOpen}
+                variant="outline"
+                size="sm"
+              >
+                Filters
+              </Button>
+            )}
+          </HStack>
         </Flex>
 
         <HStack spacing={4}>
@@ -290,18 +321,42 @@ function BrowseProjectsPage() {
             ) : error ? (
               <Alert status="error">
                 <AlertIcon />
-                Error loading projects: {error ? error : 'Unknown error'}
+                Error loading projects: {error instanceof Error ? error.message : 'Unknown error'}
               </Alert>
-            ) : sortedProjects.length === 0 ? (
+            ) : filteredProjects.length === 0 ? (
               <Text textAlign="center" py={10} color="gray.500">
                 No projects found matching your criteria.
               </Text>
             ) : (
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                {sortedProjects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
-                ))}
-              </SimpleGrid>
+              <>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                  {filteredProjects.map((project) => {
+                    console.log('Rendering project:', project);
+                    
+                    const formattedProject = {
+                      ...project,
+                      // Convert id to string to match ProjectCard's expected type
+                      id: String(project.id),
+                      // Convert budget to number to match ProjectCard's expected type
+                      budget: typeof project.budget === 'string' ? parseFloat(project.budget) : project.budget,
+                      // Handle category format
+                      category: typeof project.category === 'string' 
+                        ? { id: 0, name: project.category } 
+                        : project.category,
+                      // Ensure client has proper format  
+                      client: project.client ? {
+                        ...project.client,
+                        name: project.client.name || 
+                              `${project.client.firstName || ''} ${project.client.lastName || ''}`.trim()
+                      } : undefined
+                    };
+                    
+                    return <ProjectCard key={project.id} project={formattedProject} />;
+                  })}
+                </SimpleGrid>
+                
+                {/* <DebugProjects /> */}
+              </>
             )}
           </Box>
         </Flex>

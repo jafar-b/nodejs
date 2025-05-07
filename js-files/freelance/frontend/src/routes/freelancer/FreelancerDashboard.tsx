@@ -257,7 +257,7 @@ export function FreelancerDashboard() {
                       </VStack>
                       <Button
                         as={Link}
-                        to={`/projects/${bid.project.id}`}
+                        to={`/dashboard/projects/${bid.project.id}`}
                         size="sm"
                         colorScheme="blue"
                         variant="outline"

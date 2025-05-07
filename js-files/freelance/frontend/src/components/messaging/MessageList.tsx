@@ -152,14 +152,29 @@ function MessageList({ projectId }: MessageListProps) {
   } = useQuery<Message[]>({
     queryKey: ['messages', projectId],
     queryFn: async () => {
-      if (!isUserAssigned) {
+      // First check if user is assigned to this project before fetching messages
+      if (!projectData) {
+        const projectResponse = await apiService.projects.getById(projectId.toString());
+        
+        // Verify user is authorized to view this project's messages
+        const project = projectResponse.data;
+        const isAuthorized = 
+          (user?.role === userRole.FREELANCER && project.freelancer?.id === user.id) ||
+          (user?.role === userRole.CLIENT && project.client?.id === user.id);
+          
+        if (!isAuthorized) {
+          throw new Error('You are not authorized to view messages for this project');
+        }
+      } else if (!isUserAssigned) {
         throw new Error('You are not authorized to view messages for this project');
       }
+      
+      // If we get here, user is authorized
       const response = await apiService.messages.getByProject(projectId.toString());
       return response.data;
     },
     refetchInterval: 10000, // Poll every 10 seconds for new messages
-    enabled: !!isUserAssigned, // Only fetch if user is assigned
+    enabled: true, // We'll handle the authorization check in the queryFn
   });
 
   // Mutation for sending new messages

@@ -16,7 +16,9 @@ import { FiCalendar, FiDollarSign } from 'react-icons/fi';
 import { ProjectStatus } from '@/AllEnums';
 
 interface Client {
-  name: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
   avatar?: string;
 }
 
@@ -29,10 +31,12 @@ interface Project {
   category: {
     id: number;
     name: string;
-  };
+  } | string;
   status: ProjectStatus;
   client?: Client;
   bidsCount: number;
+  experienceLevel?: string;
+  createdAt?: string;
 }
 
 interface ProjectCardProps {
@@ -129,7 +133,7 @@ function ProjectCard({
         <HStack spacing={4} width="100%">
           <HStack>
             <FiDollarSign />
-            <Text fontWeight="medium">${budget}</Text>
+            <Text fontWeight="medium">${typeof budget === 'string' ? parseFloat(budget).toLocaleString() : budget.toLocaleString()}</Text>
           </HStack>
           <HStack>
             <FiCalendar />
@@ -141,9 +145,14 @@ function ProjectCard({
         </HStack> 
         {client && (
           <Flex align="center">
-            <Avatar size="sm" name={client.name} src={client.avatar} mr={2} />
+            <Avatar 
+              size="sm" 
+              name={client.name || `${client.firstName || ''} ${client.lastName || ''}`} 
+              src={client.avatar} 
+              mr={2} 
+            />
             <Text fontSize="sm" fontWeight="medium">
-              {client.name}
+              {client.name || `${client.firstName || ''} ${client.lastName || ''}`.trim()}
             </Text>
           </Flex>
         )}
@@ -163,7 +172,7 @@ function ProjectCard({
           </Text>
           <Button
             as={Link}
-            to={`/projects/${id}`}
+            to={`/dashboard/projects/${id}`}
             colorScheme="blue"
             variant="solid"
             size="sm"

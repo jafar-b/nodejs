@@ -187,16 +187,21 @@ function App() {
             </RoleBasedRoute>
           } 
         />
-      </Route> 
-      
-      <Route 
-        path="/projects/:id" 
-        element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <ProjectDetailPage />
-          </ProtectedRoute>
-        } 
-      />
+        
+        {/* Project Details Page - Nested under dashboard */}
+        <Route 
+          path="projects/:id" 
+          element={
+            <RoleBasedRoute 
+              isAuthenticated={isAuthenticated}
+              userRole={user?.role || ''}
+              allowedRoles={[userRole.CLIENT, userRole.FREELANCER]}
+            >
+              <ProjectDetailPage />
+            </RoleBasedRoute>
+          }
+        />
+      </Route>
 
       {/* Fallback Route */}
       <Route path="*" element={<Navigate to="/" replace />} />

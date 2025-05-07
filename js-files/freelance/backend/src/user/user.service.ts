@@ -81,6 +81,15 @@ export class UserService {
   }
 
   async uploadAvatar(userId: string, file: Express.Multer.File) {
+    console.log('Service received file:', file); // Debug log
+    
+    if (!file) {
+      throw new Error('No file uploaded');
+    }
+
+    // Log the complete file object for debugging
+    console.log('Complete file object:', JSON.stringify(file, null, 2));
+
     const user = await this.userRepository.findOne({
       where: { id: +userId },
       relations: ['profile'],
@@ -90,14 +99,20 @@ export class UserService {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
+    // Create profile if it doesn't exist
     if (!user.profile) {
-      user.profile = await this.profileRepository.create({ userId: +userId });
+      const newProfile = this.profileRepository.create({ userId: +userId });
+      user.profile = await this.profileRepository.save(newProfile);
     }
-
-    const fileUrl = this.uploadsService.getFileUrl(file.filename);
+    
+    // Construct the profile image URL directly from the filename
+    const fileUrl = `/uploads/${file.filename}`;
+    console.log('Setting profile image to:', fileUrl);
+    
+    // Update and save profile
     user.profile.profileImage = fileUrl;
     await this.profileRepository.save(user.profile);
-
+    
     return { profileImage: fileUrl };
   }
 }

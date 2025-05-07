@@ -4,7 +4,6 @@ import { UploadsService } from './uploads.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { File } from 'src/entities/file.entity';
 import { existsSync, mkdirSync } from 'fs';
@@ -17,26 +16,38 @@ import { log } from 'console';
       storage: diskStorage({
         destination: (req, file, callback) => {
           const uploadPath = './uploads';
+          log('Upload destination path:', uploadPath);
           if (!existsSync(uploadPath)) {
-            mkdirSync(uploadPath);
+            log('Creating uploads directory');
+            mkdirSync(uploadPath, { recursive: true });
           }
           callback(null, uploadPath);
         },
         filename: (req, file, callback) => {
-          const randomName = uuidv4();
-          const generatedFilename = `${randomName}${extname(file.originalname)}`;
-          log(`Generated filename: ${generatedFilename}`); // Log the filename
+          // Use original filename + timestamp to avoid conflicts
+          const originalName = file.originalname;
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+          const ext = extname(originalName);
+          const generatedFilename = `${uniqueSuffix}${ext}`;
+          
+          log('Original filename:', originalName);
+          log('Generated filename:', generatedFilename);
+          
           callback(null, generatedFilename);
         },
       }),
       fileFilter: (req, file, callback) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf|doc|docx|xls|xlsx)$/)) {
-          return callback(new Error('Only image and document files are allowed!'), false);
+        log('File filter checking:', file.originalname, file.mimetype);
+        // Accept more image types and be more permissive
+        if (!file.mimetype.match(/^image\//)) {
+          log('File rejected: not an image');
+          return callback(new Error('Only image files are allowed!'), false);
         }
+        log('File accepted');
         callback(null, true);
       },
       limits: {
-        fileSize: 1024 * 1024 * 5, // 5MB
+        fileSize: 1024 * 1024 * 10, // 10MB
       },
     }),
   ],

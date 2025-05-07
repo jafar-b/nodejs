@@ -20,6 +20,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiService from '@/api/ApiConfig';
 import ProjectForm from '@components/projects/ProjectForm';
 import useAuth from '@/hooks/useAuth';
+import { ProjectStatus } from '@/AllEnums';
 
 interface ProjectFormData {
   title: string;
@@ -58,7 +59,8 @@ function CreateProjectPage() {
         deadline: projectData.deadline,
         categoryId: Number(projectData.categoryId),
         paymentType: projectData.paymentType,
-        clientId: Number(user.id)
+        clientId: Number(user.id),
+        status: ProjectStatus.OPEN // Set status to OPEN by default instead of DRAFT
       };
 
       console.log('Sending project data:', formattedData);
@@ -75,8 +77,19 @@ function CreateProjectPage() {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['clientProjects'] });
       
-      // Navigate to the project detail page
-      navigate(`/dashboard/projects/${response.data.id}`);
+      // Navigate to the projects list page after successful creation
+      navigate('/dashboard/projects');
+      
+      // Invalidate queries to refresh project lists
+      queryClient.invalidateQueries({ queryKey: ['availableProjects'] });
+      
+      toast({
+        title: 'Success!',
+        description: 'Your project has been created and is now visible to freelancers',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
     },
     onError: (error) => {
       console.error('Project creation error:', error);

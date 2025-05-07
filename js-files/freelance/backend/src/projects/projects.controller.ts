@@ -9,6 +9,7 @@ import {
   Request,
   UseInterceptors,
   UploadedFiles,
+  Query,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 
@@ -38,8 +39,16 @@ export class ProjectsController {
 
   @Get()
   @Public()
-  findAll() {
-    return this.projectsService.findAll();
+  findAll(@Query() query: { status?: string }) {
+    console.log('Finding all projects with query:', query);
+    return this.projectsService.findAll(query);
+  }
+  
+  @Get('debug/open')
+  @Public()
+  findOpenProjects() {
+    console.log('Debug endpoint: Finding all OPEN projects');
+    return this.projectsService.findAll({ status: 'OPEN' });
   }
 
   @Get('my-projects')
