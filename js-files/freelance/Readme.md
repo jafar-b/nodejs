@@ -1,5 +1,6 @@
 # SkillSync Freelance Platform
 
+### 👉 To see the deployment files of this project please refer this GitHub link: [https://github.com/jafar-b/Freelance-platform-deployment](https://github.com/jafar-b/Freelance-platform-deployment)
 
 
 https://github.com/user-attachments/assets/f39954e9-16dc-4a94-9198-99a7aa377d73
